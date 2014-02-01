@@ -43,6 +43,8 @@ module VagrantPlugins
 			            temp.write(expr)
 			            temp.close
 
+			            puts expr
+
 			            # add the network config
 			            comm.upload(temp.path, "/etc/nixos/vagrant-network.nix")
 
@@ -52,6 +54,7 @@ module VagrantPlugins
 			            temp.unlink
 			        end
 			    end
+
 			end
 		end
 	end

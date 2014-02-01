@@ -4,7 +4,7 @@ require 'tempfile'
 require "vagrant/util/template_renderer"
 
 module VagrantPlugins
-	module GuestNixos
+	module Nixos
 		module Cap
 			class ConfigureNetworks
 				include Vagrant::Util

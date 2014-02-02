@@ -1,29 +1,22 @@
-# Vagrant::Nixos
+# NixOs Vagrant Plugin
 
-TODO: Write a gem description
+This plugin makes working with [NixOs](http://nixos.org) guests much easier to work with in [Vagrant](http://www.vagrantup.com) by:
 
-## Installation
+* Allowing network configurations from Vagrantfile (Vagrant does not have a default NixOs guest capability)
+* Provide a convention for nixos 
 
-Add this line to your application's Gemfile:
+## Usage:
 
-    gem 'vagrant-nixos'
+```bash
+$ vagrant plugin install vagrant-nixos
+...
+```
 
-And then execute:
+## How it works
 
-    $ bundle
+In nixos we don't mess around with the files in `/etc` instead we write delarative expressions for the system configuration starting in `/etc/nixos/configuration.nix`.
 
-Or install it yourself as:
+This plugin sets some ground rules for nixos boxes to keep this configuration clean.
 
-    $ gem install vagrant-nixos
+Box creators should ensure that their `configuration.nix` file imports an empty file `/etc/nixos/vagrant.nix` which will be overwritten by `vagrant-nixos` during `vagrant up` or `vagrant provision` and a `nixos-rebuild switch` will be triggerd.
 
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it ( http://github.com/<my-github-username>/vagrant-nixos/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request

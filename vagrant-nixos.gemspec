@@ -5,7 +5,7 @@ require 'vagrant-nixos/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "vagrant-nixos"
-  spec.version       = Vagrant::Nixos::VERSION
+  spec.version       = VagrantPlugins::Nixos::VERSION
   spec.authors       = ["Chris Farmiloe"]
   spec.email         = ["chrisfarms@gmail.com"]
   spec.summary       = %q{Guest capabilities and nix provisioning for NixOs}

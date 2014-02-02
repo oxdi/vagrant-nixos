@@ -11,42 +11,53 @@ module VagrantPlugins
 
 				def self.nix_interface_expr(options)
 					<<-NIX
-						{ 
-							name = "eth#{options[:interface]}";
-          					ipAddress = "#{options[:ip]}";
-          					subnetMask = "#{options[:netmask]}";
-        				}
+		{ 
+			name = "eth#{options[:interface]}";
+          	ipAddress = "#{options[:ip]}";
+          	subnetMask = "#{options[:netmask]}";
+        }
 					NIX
 				end
 
-				def self.nix_network_expr(exprs)
+				def self.nix_interface_module(networks)
+					exprs = networks.inject([]) do |exprs, network|
+						# Interfaces without an ip set will fallback to
+						# DHCP if useDHCP is set. So skip them.
+						if network[:ip].empty?
+							exprs
+						else
+							exprs << nix_interface_expr(network)
+						end
+					end
 					<<-NIX
-						config.networking.useDHCP = true;
-						config.networking.interfaces = [
-							#{exprs.join("\n")}
-						];
+{ config, pkgs, ... }:
+{
+	networking.useDHCP = true;
+	networking.interfaces = [
+		#{exprs.join("\n")}
+	];
+}
 					NIX
 				end
 
 				def self.configure_networks(machine, networks)
 					machine.communicate.tap do |comm|
 						# build the network config
-			            expr = networks.inject("") do |network, exprs|
-			            	exprs = interface_exprs(network)
-			            	exprs
-			            end
+						conf = nix_interface_module(networks)
 
 			            # Perform the careful dance necessary to reconfigure
 			            # the network interfaces
 			            temp = Tempfile.new("vagrant")
 			            temp.binmode
-			            temp.write(expr)
+			            temp.write(conf)
 			            temp.close
 
-			            puts expr
+			            puts conf
 
 			            # add the network config
-			            comm.upload(temp.path, "/etc/nixos/vagrant-network.nix")
+			            filename = "vagrant-interfaces.nix"
+			            comm.upload(temp.path, "/tmp/#{filename}")
+			            comm.sudo("mv /tmp/#{filename} /etc/nixos/#{filename}")
 
 			            # TODO: check that the network config is referenced in vagrant.nix
 

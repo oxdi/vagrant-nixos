@@ -15,12 +15,12 @@ module VagrantPlugins
 	        	elsif @config.path
 	        		File.read(@config.path)
 	        	elsif @config.expression
-	        		"{config, pkgs, ...}:\n#{@config.expression.to_nix}"
+	        		"{config, pkgs, ...}: with pkgs; #{@config.expression}"
 	        	else
-	        		raise NixosConfigError, "Mising :path or :inline"
+	        		raise NixosConfigError, "Mising :path, :inline or :expression"
 	        	end
 	        	Nixos.write_config(machine, "vagrant-provision.nix", conf)
-	        	Nixos.rebuild(machine, @config.NIX_PATH)
+	        	Nixos.rebuild!(machine, @config.NIX_PATH)
 	        end
 	    end
 	end

@@ -4,6 +4,7 @@ module VagrantPlugins
 		class Config < Vagrant.plugin("2", :config)
 			attr_accessor :inline
 			attr_accessor :path
+			attr_accessor :expression
 			attr_accessor :NIX_PATH
 
 			def initialize
@@ -16,14 +17,18 @@ module VagrantPlugins
 			def finalize!
 				@inline      = nil if @inline == UNSET_VALUE
 				@path        = nil if @path == UNSET_VALUE
-				@expression  = nil if @expression = UNSET_VALUE
+				@expression  = nil if @expression == UNSET_VALUE
 				@NIX_PATH    = nil if @NIX_PATH == UNSET_VALUE
+			end
+
+			def expression=(v)
+				@expression = v.to_nix
 			end
 
 			def validate(machine)
 				errors = _detected_errors
 
-				if (path && inline) or (path && expression) or (inline and expression)
+				if (path && inline) or (path && expression) or (inline && expression)
 					errors << "You can have one and only one of :path, :expression or :inline for nixos provisioner"
 				elsif !path && !inline && !expression
 					errors << "Missing :inline, :expression or :path for nixos provisioner"

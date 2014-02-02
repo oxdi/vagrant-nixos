@@ -22,9 +22,18 @@ module VagrantPlugins
 			@@imports[machine.id][filename] = true
 		end
 
+		def imports
+		end
+
+		# rebuild the base vagrant.nix configuration
 		def self.rebuild(machine, nix_env=nil)
-			rebuild_cmd = "nixos-rebuild switch"
+			# build 
 			conf = "{ config, pkgs, ... }:\n{"
+			# Add a mock provision file if it is missing as during boot the
+			# provisioning file may not be deployed yet.
+			if @@imports[machine.id].nil? || @@imports[machine.id]["vagrant-provision.nix"].nil?
+				write_config(machine, "vagrant-provision.nix", "{ config, pkgs, ... }: {}")
+			end
 			# imports
 			conf_paths = if @@imports[machine.id].nil?
 				[]
@@ -45,11 +54,17 @@ module VagrantPlugins
 						export NIX_PATH=#{nix_env}:$NIX_PATH
 					'';
 				}
-				rebuild_cmd = "NIX_PATH=#{nix_env}:$NIX_PATH #{rebuild_cmd}"
 			end
 			conf << "}"
 			# output / build the config
 			_write_config(machine, "vagrant.nix", conf)
+			rebuild!(machine, nix_env)
+		end
+
+		# just do nixos-rebuild
+		def self.rebuild!(machine, nix_env=nil)
+			rebuild_cmd = "nixos-rebuild switch"
+			rebuild_cmd = "NIX_PATH=#{nix_env}:$NIX_PATH #{rebuild_cmd}" if nix_env
 			machine.communicate.tap do |comm|
 				comm.sudo(rebuild_cmd)
 			end

@@ -18,6 +18,9 @@ module VagrantPlugins
 		end
 
 		def self.rebuild(machine)
+			rebuild_cmd = "nixos-rebuild switch"
+			conf = "{ config, pkgs, ... }:\n{"
+			# imports
 			conf_paths = if @@imports[machine.id].nil?
 				[]
 			else
@@ -25,22 +28,25 @@ module VagrantPlugins
 					paths << "./#{filename}"
 				end
 			end
-			conf = <<-NIX
-{ config, pkgs, ... }:
-
-#
-# This file is managed by the vagrant-nixos plugin. So hands off!
-#
-
-{
-	imports = [
-		#{conf_paths.join("\n\t\t")}
-	];
-}
-			NIX
+			conf << %{
+				imports = [
+					#{conf_paths.join("\n\t\t")}
+				];
+			}
+			# default NIX_PATH
+			if machine.config.nixos.NIX_PATH
+				conf << %{
+					config.environment.shellInit = ''
+						export NIX_PATH=#{machine.config.nixos.NIX_PATH}:$NIX_PATH
+					'';
+				}
+				rebuild_cmd = "NIX_PATH=#{machine.config.nixos.NIX_PATH}:$NIX_PATH #{rebuild_cmd}"
+			end
+			conf << "}"
+			# output / build the config
 			_write_config(machine, "vagrant.nix", conf)
 			machine.communicate.tap do |comm|
-				comm.sudo("nixos-rebuild switch")
+				comm.sudo(rebuild_cmd)
 			end
 		end
 

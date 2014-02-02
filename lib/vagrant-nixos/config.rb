@@ -9,22 +9,24 @@ module VagrantPlugins
 			def initialize
 				@inline      = UNSET_VALUE
 				@path        = UNSET_VALUE
+				@expression  = UNSET_VALUE
 				@NIX_PATH    = UNSET_VALUE
 			end
 
 			def finalize!
 				@inline      = nil if @inline == UNSET_VALUE
 				@path        = nil if @path == UNSET_VALUE
+				@expression  = nil if @expression = UNSET_VALUE
 				@NIX_PATH    = nil if @NIX_PATH == UNSET_VALUE
 			end
 
 			def validate(machine)
 				errors = _detected_errors
 
-				if path && inline
-					errors << "Both :path and :inline were set for nixos provisioner"
-				elsif !path && !inline
-					errors << "Missing :inline or :path for nixos provisioner"
+				if (path && inline) or (path && expression) or (inline and expression)
+					errors << "You can have one and only one of :path, :expression or :inline for nixos provisioner"
+				elsif !path && !inline && !expression
+					errors << "Missing :inline, :expression or :path for nixos provisioner"
 				end
 
 				if path && !File.exist?(path)

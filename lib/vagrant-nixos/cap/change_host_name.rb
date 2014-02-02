@@ -10,10 +10,10 @@ module VagrantPlugins
 
 				def self.nix_module(name)
 					<<-NIX
-{ config, pkgs, ... }:
-{
-	networking.hostName = "#{name}";
-}
+						{ config, pkgs, ... }:
+						{
+							networking.hostName = "#{name}";
+						}
 					NIX
 				end
 

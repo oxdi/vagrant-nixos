@@ -11,11 +11,11 @@ module VagrantPlugins
 
 				def self.nix_interface_expr(options)
 					<<-NIX
-		{ 
-			name = "eth#{options[:interface]}";
-          	ipAddress = "#{options[:ip]}";
-          	subnetMask = "#{options[:netmask]}";
-        }
+						{ 
+							name = "eth#{options[:interface]}";
+							ipAddress = "#{options[:ip]}";
+							subnetMask = "#{options[:netmask]}";
+						}
 					NIX
 				end
 
@@ -30,14 +30,14 @@ module VagrantPlugins
 						end
 					end
 					<<-NIX
-{ config, pkgs, ... }:
-{
-	networking.usePredictableInterfaceNames = false;
-	networking.useDHCP = true;
-	networking.interfaces = [
-		#{exprs.join("\n")}
-	];
-}
+						{ config, pkgs, ... }:
+						{
+							networking.usePredictableInterfaceNames = false;
+							networking.useDHCP = true;
+							networking.interfaces = [
+								#{exprs.join("\n")}
+							];
+						}
 					NIX
 				end
 

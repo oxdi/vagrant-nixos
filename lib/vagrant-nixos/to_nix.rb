@@ -38,3 +38,9 @@ class String
 	    "''#{self}''"
 	end
 end
+
+class Fixnum
+	def to_nix(indent = 0)
+	    to_s
+	end
+end

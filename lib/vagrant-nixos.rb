@@ -1,7 +1,6 @@
 require "vagrant-nixos/version"
 require "vagrant-nixos/plugin"
 require "vagrant-nixos/util"
-require "vagrant-nixos/to_nix"
 
 module VagrantPlugins
 	module Nixos

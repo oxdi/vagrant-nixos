@@ -2,28 +2,65 @@
 
 This plugin makes working with [NixOS](http://nixos.org) guests much easier to work with in [Vagrant](http://www.vagrantup.com):
 
-* Allow network configurations from Vagrantfile (Vagrant does not have a default NixOS guest capability)
+* Allow network configurations
 * Allow hostname setting
-* Provide a convention for nix provisioning
+* Provide nix provisioning
 
-## Usage:
+## Install:
 
 ```bash
 $ vagrant plugin install vagrant-nixos
-...
 ```
+
+## Example
+
+```ruby
+Vagrant.configure("2") do |config|
+
+	# use a suitable NixOS box
+	config.vm.box = "nixos-14.02-x86_64"
+  	
+  	# set hostname
+  	config.vm.hostname = "nixy"
+  
+  	# Setup networking
+	config.vm.network "public_network", :bridge => 'en1: Wi-Fi (AirPort)'
+	config.vm.network "private_network", :ip => "172.16.16.16"
+
+	# Add the htop package
+	config.vm.provision :nixos, :expression => {
+		environment: {
+			systemPackages: [ :htop ]
+		}
+	}, :NIX_PATH => "/custom/path/to/nixpkgs"
+
+end
+```
+
+In the above `Vagrantfile` example we provision the box using the `:expression` method, which will perform a simple ruby -> nix conversion. `:expression` provisioning creates a nix module that executes with `pkgs` in scope. It is roughly equivilent to the below version that uses the `:inline` method.
+
+```ruby
+	config.vm.provision :nixos, :inline => %{
+		{config, pkgs, ...}: with pkgs; {
+			environment.systemPackages = [ htop ];
+		}
+	}, :NIX_PATH => "/custom/path/to/nixpkgs"
+```
+
+Both examples show the optional configuring of a custom `NIX_PATH` path.
+
 
 ## How it works
 
-In nixos we don't mess around with the files in `/etc` instead we write delarative expressions for the system configuration starting in `/etc/nixos/configuration.nix`.
+In nixos we don't mess around with the files in `/etc` instead we write expressions for the system configuration starting in `/etc/nixos/configuration.nix`.
 
-This plugin sets some ground rules for nixos boxes to keep this configuration clean.
+This plugin sets some ground rules for nixos boxes to keep this configuration clean and provisioning possible.
 
-Box creators should ensure that their `configuration.nix` file imports an empty file `/etc/nixos/vagrant.nix` which will be overwritten by `vagrant-nixos` during `vagrant up` or `vagrant provision` and a `nixos-rebuild switch` will be triggerd.
+Box creators should ensure that their `configuration.nix` file imports an nix module `/etc/nixos/vagrant.nix` which will be overwritten by `vagrant-nixos` during `vagrant up` or `vagrant provision`.
 
 See the configuration in our [NixOS packer template](http://github.com/oxdi/nixos) for an example.
 
 ## Issues
 
-It's a bit slow to boot at the moment as it must run nixos-rebuild several times. This is far from ideal I'm sure I'll find a better place to hook in the rebuild step soon.
+It's a bit slow on the initial boot/provision at the moment as it must run nixos-rebuild several times. This is far from ideal I'm sure I'll find a better place to hook in the rebuild step soon.
 

@@ -1,6 +1,6 @@
 # NixOS Vagrant Plugin
 
-This plugin makes working with [NixOS](http://nixos.org) guests much easier to work with in [Vagrant](http://www.vagrantup.com):
+This plugin makes working with [NixOS](http://nixos.org) guests in [Vagrant](http://www.vagrantup.com) a bit nicer:
 
 * Allow network configurations
 * Allow hostname setting
@@ -12,7 +12,7 @@ This plugin makes working with [NixOS](http://nixos.org) guests much easier to w
 $ vagrant plugin install vagrant-nixos
 ```
 
-## Example
+## Example Vagrantfile
 
 ```ruby
 Vagrant.configure("2") do |config|

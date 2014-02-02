@@ -20,3 +20,5 @@ This plugin sets some ground rules for nixos boxes to keep this configuration cl
 
 Box creators should ensure that their `configuration.nix` file imports an empty file `/etc/nixos/vagrant.nix` which will be overwritten by `vagrant-nixos` during `vagrant up` or `vagrant provision` and a `nixos-rebuild switch` will be triggerd.
 
+See the configuration in our [NixOS packer template](http://github.com/oxdi/nixos) for an example.
+

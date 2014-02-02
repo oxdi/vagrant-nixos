@@ -23,7 +23,7 @@ module VagrantPlugins
 					exprs = networks.inject([]) do |exprs, network|
 						# Interfaces without an ip set will fallback to
 						# DHCP if useDHCP is set. So skip them.
-						if network[:ip].empty?
+						if network[:ip].nil? or network[:ip].empty?
 							exprs
 						else
 							exprs << nix_interface_expr(network)
@@ -45,24 +45,9 @@ module VagrantPlugins
 						# build the network config
 						conf = nix_interface_module(networks)
 
-			            # Perform the careful dance necessary to reconfigure
-			            # the network interfaces
-			            temp = Tempfile.new("vagrant")
-			            temp.binmode
-			            temp.write(conf)
-			            temp.close
-
-			            puts conf
-
-			            # add the network config
-			            filename = "vagrant-interfaces.nix"
-			            comm.upload(temp.path, "/tmp/#{filename}")
-			            comm.sudo("mv /tmp/#{filename} /etc/nixos/#{filename}")
-
-			            # TODO: check that the network config is referenced in vagrant.nix
-
-			            # cleanup
-			            temp.unlink
+						# write out config and build
+			            Nixos.write_nix_config(comm, "vagrant-interfaces.nix", conf)
+			            Nixos.rebuild(comm)
 			        end
 			    end
 

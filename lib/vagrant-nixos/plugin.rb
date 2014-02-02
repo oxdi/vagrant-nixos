@@ -36,15 +36,16 @@ module VagrantPlugins
 				Cap::ChangeHostName
 			end
 
-			provisioner "nix" do
+			config :nixos, :provisioner do
+				require_relative "config"
+				Config
+			end
+			
+			provisioner :nixos do
 				require_relative "provisioner"
 				Provisioner
 			end
 
-			config "nixos" do
-				require_relative "config"
-				Config
-			end
 		end
 
 	end

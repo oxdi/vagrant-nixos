@@ -8,7 +8,8 @@ module VagrantPlugins
 
 		@@imports = {}
 
-		# send file to machine
+		# Send file to machine and report if it changed
+		# See _write_config
 		def self.write_config(machine, filename, conf)
 			include_config(machine, filename)
 			_write_config(machine, filename, conf)
@@ -31,8 +32,8 @@ module VagrantPlugins
 			conf = "{ config, pkgs, ... }:\n{"
 			# Add a mock provision file if it is missing as during boot the
 			# provisioning file may not be deployed yet.
-			if @@imports[machine.id].nil? || @@imports[machine.id]["vagrant-provision.nix"].nil?
-				write_config(machine, "vagrant-provision.nix", "{ config, pkgs, ... }: {}")
+			if !machine.communicate.test("test -f /etc/nixos/vagrant-provision.nix")
+				_write_config(machine, "vagrant-provision.nix", "{ config, pkgs, ... }: {}")
 			end
 			# imports
 			conf_paths = if @@imports[machine.id].nil?
@@ -42,6 +43,8 @@ module VagrantPlugins
 					paths << "./#{filename}"
 				end
 			end
+			conf_paths << "./vagrant-provision.nix"
+			# construct the nix module
 			conf << %{
 				imports = [
 					#{conf_paths.join("\n\t\t")}
@@ -70,18 +73,32 @@ module VagrantPlugins
 			end
 		end
 
+		def self.same?(machine, f1, f2)
+			machine.communicate.test("cmp --silent '#{f1}' '#{f2}'")
+		end
+
 		protected
 
-		# send file to machine
+		# Send file to machine.
+		# Returns true if the uploaded file if different from any 
+		# preexisting file, false if the file is indentical
 		def self._write_config(machine, filename, conf)
 			temp = Tempfile.new("vagrant")
 			temp.binmode
 			temp.write(conf)
 			temp.close
+			changed = true
 			machine.communicate.tap do |comm|
-	            comm.upload(temp.path, "/tmp/#{filename}")
-	            comm.sudo("mv /tmp/#{filename} /etc/nixos/#{filename}")
+				source = "/tmp/#{filename}"
+				target = "/etc/nixos/#{filename}"
+	            comm.upload(temp.path, source)
+	            if same?(machine, source, target)
+	            	changed = false
+	            else
+	            	comm.sudo("mv '#{source}' '#{target}'")
+	            end
 	        end
+	        return changed
 		end
 	end
 end

@@ -42,8 +42,9 @@ module VagrantPlugins
 				end
 
 				def self.configure_networks(machine, networks)
-					Nixos.write_config(machine, "vagrant-interfaces.nix", nix_module(networks))
-					Nixos.rebuild(machine)
+					if Nixos.write_config(machine, "vagrant-interfaces.nix", nix_module(networks))
+						Nixos.rebuild(machine)
+					end
 				end
 
 			end

@@ -31,12 +31,17 @@ module VagrantPlugins
 				Cap::ConfigureNetworks
 			end
 
+			guest_capability("nixos", "change_host_name") do
+				require_relative "cap/change_host_name"
+				Cap::ChangeHostName
+			end
+
 			provisioner "nix" do
 				require_relative "provisioner"
 				Provisioner
 			end
 
-			config "nix_path" do
+			config "nixos" do
 				require_relative "config"
 				Config
 			end
@@ -76,7 +81,7 @@ module VagrantPlugins
 }
 			NIX
 			_write_nix_config(comm, "vagrant.nix", conf)
-			comm.sudo("__ETC_PROFILE_SOURCED=0 nixos-rebuild switch", { :shell => "sh" })
+			comm.sudo("nixos-rebuild switch")
 		end
 	end
 end

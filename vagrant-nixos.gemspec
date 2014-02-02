@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = VagrantPlugins::Nixos::VERSION
   spec.authors       = ["Chris Farmiloe"]
   spec.email         = ["chrisfarms@gmail.com"]
-  spec.summary       = %q{Guest capabilities and nix provisioning for NixOs}
-  spec.description   = %q{Allow Vagrantfile configuration of nixos guests and make it easy to deploy *.nix configuration}
+  spec.summary       = %q{Guest capabilities and nix provisioning for NixOS}
+  spec.description   = %q{Add capabilities and basic nix configuration provisioning for NixOS guests in Vagrant}
   spec.homepage      = ""
   spec.license       = "MIT"
 

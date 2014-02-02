@@ -1,8 +1,8 @@
-# NixOs Vagrant Plugin
+# NixOS Vagrant Plugin
 
-This plugin makes working with [NixOs](http://nixos.org) guests much easier to work with in [Vagrant](http://www.vagrantup.com) by:
+This plugin makes working with [NixOS](http://nixos.org) guests much easier to work with in [Vagrant](http://www.vagrantup.com) by:
 
-* Allowing network configurations from Vagrantfile (Vagrant does not have a default NixOs guest capability)
+* Allowing network configurations from Vagrantfile (Vagrant does not have a default NixOS guest capability)
 * Provide a convention for nixos 
 
 ## Usage:

@@ -10,7 +10,6 @@ module VagrantPlugins
 				include Vagrant::Util
 
 				def self.nix_interface_expr(options)
-					puts options.inspect
 					<<-NIX
 		{ 
 			name = "eth#{options[:interface]}";

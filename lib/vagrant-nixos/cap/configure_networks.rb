@@ -13,14 +13,14 @@ module VagrantPlugins
 					puts options.inspect
 					<<-NIX
 		{ 
-			name = "eth#{options[:adapter]}";
+			name = "eth#{options[:interface]}";
           	ipAddress = "#{options[:ip]}";
           	subnetMask = "#{options[:netmask]}";
         }
 					NIX
 				end
 
-				def self.nix_interface_module(networks)
+				def self.nix_module(networks)
 					exprs = networks.inject([]) do |exprs, network|
 						# Interfaces without an ip set will fallback to
 						# DHCP if useDHCP is set. So skip them.
@@ -33,6 +33,7 @@ module VagrantPlugins
 					<<-NIX
 { config, pkgs, ... }:
 {
+	networking.usePredictableInterfaceNames = false;
 	networking.useDHCP = true;
 	networking.interfaces = [
 		#{exprs.join("\n")}
@@ -42,15 +43,9 @@ module VagrantPlugins
 				end
 
 				def self.configure_networks(machine, networks)
-					machine.communicate.tap do |comm|
-						# build the network config
-						conf = nix_interface_module(networks)
-
-						# write out config and build
-			            Nixos.write_nix_config(comm, "vagrant-interfaces.nix", conf)
-			            Nixos.rebuild(comm)
-			        end
-			    end
+					Nixos.write_config(machine, "vagrant-interfaces.nix", nix_module(networks))
+					Nixos.rebuild(machine)
+				end
 
 			end
 		end

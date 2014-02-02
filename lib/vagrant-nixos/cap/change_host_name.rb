@@ -18,11 +18,9 @@ module VagrantPlugins
 				end
 
 				def self.change_host_name(machine, name)
-					machine.communicate.tap do |comm|
-			            Nixos.write_nix_config(comm, "vagrant-hostname.nix", nix_module(name))
-			            Nixos.rebuild(comm)
-			        end
-			    end
+					Nixos.write_config(machine, "vagrant-hostname.nix", nix_module(name))
+					Nixos.rebuild(machine)
+				end
 
 			end
 		end

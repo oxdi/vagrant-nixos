@@ -26,10 +26,13 @@ module Nix
 
 		def to_nix(indent = 0)
 			s = ""
+			s << "(" if @exprs[0] == :import
 			if @parent
 				s = @parent.to_nix << "."
 			end
 			s << @exprs.map{|e| e.to_nix}.join(" ")
+			s << ")" if @exprs[0] == :import
+			s
 		end
 	end
 end
@@ -66,8 +69,9 @@ end
 
 class String
 	def to_nix(indent = 0)
-	    # TODO: escape ${var} in string
-	    "''#{self}''"
+		return self if self.slice(0,2) == "./"
+		return %{''#{self}''} if self =~ /\n/
+		%{"#{self}"}
 	end
 end
 

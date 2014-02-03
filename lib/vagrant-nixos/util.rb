@@ -66,6 +66,11 @@ module VagrantPlugins
 
 		# just do nixos-rebuild
 		def self.rebuild!(machine, nix_env=nil)
+			# Add a tmp vagreant.nix file if it is missing
+			if !machine.communicate.test("grep 'provision' </etc/nixos/vagrant.nix")
+				_write_config(machine, "vagrant.nix", %{{ config, pkgs, ... }: { imports = [ ./vagrant-provision.nix ];}})
+			end
+			# rebuild
 			rebuild_cmd = "nixos-rebuild switch"
 			rebuild_cmd = "NIX_PATH=#{nix_env}:$NIX_PATH #{rebuild_cmd}" if nix_env
 			machine.communicate.tap do |comm|
@@ -74,7 +79,7 @@ module VagrantPlugins
 		end
 
 		def self.same?(machine, f1, f2)
-			machine.communicate.test("cmp --silent '#{f1}' '#{f2}'")
+			machine.communicate.test("cmp --silent #{f1} #{f2}")
 		end
 
 		protected
@@ -92,10 +97,12 @@ module VagrantPlugins
 				source = "/tmp/#{filename}"
 				target = "/etc/nixos/#{filename}"
 	            comm.upload(temp.path, source)
+	            puts conf
 	            if same?(machine, source, target)
+	            	puts "SAME"
 	            	changed = false
 	            else
-	            	comm.sudo("mv '#{source}' '#{target}'")
+	            	comm.sudo("mv #{source} #{target}")
 	            end
 	        end
 	        return changed

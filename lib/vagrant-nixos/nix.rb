@@ -7,16 +7,17 @@ module Nix
 	INDENT_STRING="  "
 
 	def self.method_missing(m, *args, &block)
-		NixBuilder.new(nil, m, args)
+		NixBuilder.new(nil, m.to_sym, *args)
 	end
 
 	class NixBuilder
 
-		attr_accessor exprs
+		attr_accessor :exprs
+		attr_accessor :parent
 
 		def initialize(parent, expr, *args)
 			@parent = parent
-			@exprs << args.inject([expr]){|exs, e| exs << e.to_nix}
+			@exprs  = args.inject([expr]){|exs, e| exs << e}
 		end
 
 		def method_missing(m, *args, &block)
@@ -24,7 +25,11 @@ module Nix
 		end
 
 		def to_nix(indent = 0)
-			@parent.to_nix << "." << @expr.map{|e| e.to_nix}.join(" ")
+			s = ""
+			if @parent
+				s = @parent.to_nix << "."
+			end
+			s << @exprs.map{|e| e.to_nix}.join(" ")
 		end
 	end
 end

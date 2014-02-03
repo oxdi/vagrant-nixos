@@ -97,9 +97,7 @@ module VagrantPlugins
 				source = "/tmp/#{filename}"
 				target = "/etc/nixos/#{filename}"
 	            comm.upload(temp.path, source)
-	            puts conf
 	            if same?(machine, source, target)
-	            	puts "SAME"
 	            	changed = false
 	            else
 	            	comm.sudo("mv #{source} #{target}")

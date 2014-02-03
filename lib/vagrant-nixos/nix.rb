@@ -76,3 +76,15 @@ class Fixnum
 	    to_s
 	end
 end
+
+class TrueClass
+	def to_nix(indent = 0)
+	    to_s
+	end
+end
+
+class FalseClass
+	def to_nix(indent = 0)
+	    to_s
+	end
+end

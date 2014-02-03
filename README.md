@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config|
 		environment: {
 			systemPackages: [ :htop ]
 		}
-	}, :NIX_PATH => "/custom/path/to/nixpkgs"
+	}
 
 end
 ```
@@ -40,14 +40,33 @@ end
 In the above `Vagrantfile` example we provision the box using the `:expression` method, which will perform a simple ruby -> nix conversion. `:expression` provisioning creates a nix module that executes with `pkgs` in scope. It is roughly equivilent to the below version that uses the `:inline` method.
 
 ```ruby
-	config.vm.provision :nixos, :inline => %{
-		{config, pkgs, ...}: with pkgs; {
-			environment.systemPackages = [ htop ];
-		}
-	}, :NIX_PATH => "/custom/path/to/nixpkgs"
+config.vm.provision :nixos, :inline => %{
+	{config, pkgs, ...}: with pkgs; {
+		environment.systemPackages = [ htop ];
+	}
+}, :NIX_PATH => "/custom/path/to/nixpkgs"
 ```
 
-Both examples show the optional configuring of a custom `NIX_PATH` path.
+The above example also shows the optional setting of a custom `NIX_PATH` path.
+
+If you need to use functions or access values using dot syntax you can use the `Nix` module:
+
+```ruby
+config.vm.provision :nixos, :expression => {
+	services: {
+		postgresql: {
+			enable: true,
+			package: Nix.pkgs.postgresql93,
+			enableTCPIP: true,
+			authentication: Nix.lib.mkForce(%{
+				local all all              trust
+				host  all all 127.0.0.1/32 trust
+			}),
+			initialScript: "/etc/nixos/postgres.sql"
+		}
+	}
+}	
+```
 
 
 ## How it works

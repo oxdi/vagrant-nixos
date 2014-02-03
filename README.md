@@ -17,14 +17,15 @@ $ vagrant plugin install vagrant-nixos
 ```ruby
 Vagrant.configure("2") do |config|
 
-	# use a suitable NixOS box
+	# use a suitable NixOS base
+	# http://github.com/oxdi/nixos
 	config.vm.box = "nixos-14.02-x86_64"
+	config.vm.box_url = "http://s3.amazonaws.com/oxdi/nixos-14.02-x86_64-virtualbox.box"
   	
   	# set hostname
   	config.vm.hostname = "nixy"
   
   	# Setup networking
-	config.vm.network "public_network", :bridge => 'en1: Wi-Fi (AirPort)'
 	config.vm.network "private_network", :ip => "172.16.16.16"
 
 	# Add the htop package

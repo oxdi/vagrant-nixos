@@ -27,7 +27,7 @@ module VagrantPlugins
 		end
 
 		# rebuild the base vagrant.nix configuration
-		def self.rebuild(machine, nix_env=nil)
+		def self.rebuild(machine, explicit_include=false, nix_env=nil)
 			# build 
 			conf = "{ config, pkgs, ... }:\n{"
 			# Add a mock provision file if it is missing as during boot the
@@ -61,17 +61,18 @@ module VagrantPlugins
 			conf << "}"
 			# output / build the config
 			_write_config(machine, "vagrant.nix", conf)
-			rebuild!(machine, nix_env)
+			rebuild!(machine, explicit_include, nix_env)
 		end
 
 		# just do nixos-rebuild
-		def self.rebuild!(machine, nix_env=nil)
+		def self.rebuild!(machine, explicit_include=false, nix_env=nil)
 			# Add a tmp vagreant.nix file if it is missing
 			if !machine.communicate.test("grep 'provision' </etc/nixos/vagrant.nix")
 				_write_config(machine, "vagrant.nix", %{{ config, pkgs, ... }: { imports = [ ./vagrant-provision.nix ];}})
 			end
 			# rebuild
 			rebuild_cmd = "nixos-rebuild switch"
+			rebuild_cmd = "#{rebuild_cmd} -I nixos-config=/etc/nixos/vagrant.nix" if explicit_include
 			rebuild_cmd = "NIX_PATH=#{nix_env}:$NIX_PATH #{rebuild_cmd}" if nix_env
 			machine.communicate.tap do |comm|
 				comm.sudo(rebuild_cmd)

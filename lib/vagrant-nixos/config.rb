@@ -1,16 +1,17 @@
-
 module VagrantPlugins
 	module Nixos
 		class Config < Vagrant.plugin("2", :config)
 			attr_accessor :inline
 			attr_accessor :path
 			attr_accessor :expression
+			attr_accessor :include
 			attr_accessor :NIX_PATH
 
 			def initialize
 				@inline      = UNSET_VALUE
 				@path        = UNSET_VALUE
 				@expression  = UNSET_VALUE
+				@include     = UNSET_VALUE
 				@NIX_PATH    = UNSET_VALUE
 			end
 
@@ -18,6 +19,7 @@ module VagrantPlugins
 				@inline      = nil if @inline == UNSET_VALUE
 				@path        = nil if @path == UNSET_VALUE
 				@expression  = nil if @expression == UNSET_VALUE
+				@include     = nil if @include == UNSET_VALUE
 				@NIX_PATH    = nil if @NIX_PATH == UNSET_VALUE
 			end
 

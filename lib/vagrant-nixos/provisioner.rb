@@ -20,9 +20,8 @@ module VagrantPlugins
 	        		raise NixosConfigError, "Mising :path, :inline or :expression"
 	        	end
 	        	Nixos.write_config(machine, "vagrant-provision.nix", conf)
-	        	Nixos.rebuild!(machine, @config.NIX_PATH)
+	        	Nixos.rebuild!(machine, @config.include, @config.NIX_PATH)
 	        end
 	    end
 	end
 end
-

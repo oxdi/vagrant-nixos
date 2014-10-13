@@ -50,6 +50,20 @@ config.vm.provision :nixos, :inline => %{
 
 The above example also shows the optional setting of a custom `NIX_PATH` path.
 
+You can also use an external nix configuration file:
+
+```ruby
+config.vm.provision :nixos, :path => “configuration.nix”
+```
+
+If you need provisioning to be included explicitly during rebuild use:
+
+```ruby
+config.vm.provision :nixos,
+	:path => “configuration.nix”,
+	:include => true
+```
+
 If you need to use functions or access values using dot syntax you can use the `Nix` module:
 
 ```ruby

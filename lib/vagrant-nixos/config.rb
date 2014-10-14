@@ -5,6 +5,7 @@ module VagrantPlugins
 			attr_accessor :path
 			attr_accessor :expression
 			attr_accessor :include
+			attr_accessor :verbose
 			attr_accessor :NIX_PATH
 
 			def initialize
@@ -12,6 +13,7 @@ module VagrantPlugins
 				@path        = UNSET_VALUE
 				@expression  = UNSET_VALUE
 				@include     = UNSET_VALUE
+				@verbose     = UNSET_VALUE
 				@NIX_PATH    = UNSET_VALUE
 			end
 
@@ -20,6 +22,7 @@ module VagrantPlugins
 				@path        = nil if @path == UNSET_VALUE
 				@expression  = nil if @expression == UNSET_VALUE
 				@include     = nil if @include == UNSET_VALUE
+				@verbose     = nil if @verbose == UNSET_VALUE
 				@NIX_PATH    = nil if @NIX_PATH == UNSET_VALUE
 			end
 

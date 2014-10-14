@@ -64,6 +64,14 @@ config.vm.provision :nixos,
 	:include => true
 ```
 
+You can enable verbose provision output during rebuild process with:
+
+```ruby
+config.vm.provision :nixos,
+	:path => “configuration.nix”,
+	:verbose => true
+```
+
 If you need to use functions or access values using dot syntax you can use the `Nix` module:
 
 ```ruby

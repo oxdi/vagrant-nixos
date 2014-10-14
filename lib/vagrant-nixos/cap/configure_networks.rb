@@ -43,7 +43,7 @@ module VagrantPlugins
 
 				def self.configure_networks(machine, networks)
 					if Nixos.write_config(machine, "vagrant-interfaces.nix", nix_module(networks))
-						Nixos.rebuild(machine)
+						machine.env.ui.info "Setting up network interfaces #{networks}"
 					end
 				end
 

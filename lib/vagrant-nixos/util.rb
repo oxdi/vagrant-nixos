@@ -28,7 +28,7 @@ module VagrantPlugins
 
 		# rebuild the base vagrant.nix configuration
 		def self.prepare(machine, config)
-			# build 
+			# build
 			conf = "{ config, pkgs, ... }:\n{"
 			# Add a mock provision file if it is missing as during boot the
 			# provisioning file may not be deployed yet.
@@ -36,14 +36,11 @@ module VagrantPlugins
 				_write_config(machine, "vagrant-provision.nix", "{ config, pkgs, ... }: {}")
 			end
 			# imports
-			conf_paths = if @@imports[machine.id].nil?
-				[]
-			else
+			include_config(machine, 'vagrant-provision.nix')
+			conf_paths =
 				@@imports[machine.id].keys.inject([]) do |paths, filename|
 					paths << "./#{filename}"
 				end
-			end
-			conf_paths << "./vagrant-provision.nix"
 			# construct the nix module
 			conf << %{
 				imports = [

@@ -5,7 +5,7 @@ module VagrantPlugins
 			attr_accessor :nix_imports
 
 			def detect?(machine)
-				machine.communicate.test("test -f /etc/nixos/configuration.nix")
+				machine.communicate.test("test -d /etc/nixos")
 			end
 
 		end

@@ -27,8 +27,8 @@ module VagrantPlugins
 		end
 
 		# rebuild the base vagrant.nix configuration
-		def self.rebuild(machine, nix_env=nil)
-			# build 
+		def self.prepare(machine, config)
+			# build
 			conf = "{ config, pkgs, ... }:\n{"
 			# Add a mock provision file if it is missing as during boot the
 			# provisioning file may not be deployed yet.
@@ -36,14 +36,11 @@ module VagrantPlugins
 				_write_config(machine, "vagrant-provision.nix", "{ config, pkgs, ... }: {}")
 			end
 			# imports
-			conf_paths = if @@imports[machine.id].nil?
-				[]
-			else
+			include_config(machine, 'vagrant-provision.nix')
+			conf_paths =
 				@@imports[machine.id].keys.inject([]) do |paths, filename|
 					paths << "./#{filename}"
 				end
-			end
-			conf_paths << "./vagrant-provision.nix"
 			# construct the nix module
 			conf << %{
 				imports = [
@@ -51,30 +48,45 @@ module VagrantPlugins
 				];
 			}
 			# default NIX_PATH
-			if nix_env
+			if config.NIX_PATH
 				conf << %{
 					config.environment.shellInit = ''
-						export NIX_PATH=#{nix_env}:$NIX_PATH
+						export NIX_PATH=#{config.NIX_PATH}:$NIX_PATH
 					'';
 				}
 			end
 			conf << "}"
 			# output / build the config
 			_write_config(machine, "vagrant.nix", conf)
-			rebuild!(machine, nix_env)
 		end
 
 		# just do nixos-rebuild
-		def self.rebuild!(machine, nix_env=nil)
+		def self.rebuild!(machine, config)
+			self.prepare(machine, config)
 			# Add a tmp vagreant.nix file if it is missing
 			if !machine.communicate.test("grep 'provision' </etc/nixos/vagrant.nix")
 				_write_config(machine, "vagrant.nix", %{{ config, pkgs, ... }: { imports = [ ./vagrant-provision.nix ];}})
 			end
 			# rebuild
 			rebuild_cmd = "nixos-rebuild switch"
-			rebuild_cmd = "NIX_PATH=#{nix_env}:$NIX_PATH #{rebuild_cmd}" if nix_env
+			rebuild_cmd = "#{rebuild_cmd} -I nixos-config=/etc/nixos/vagrant.nix" if config.include
+			rebuild_cmd = "NIX_PATH=#{config.NIX_PATH}:$NIX_PATH #{rebuild_cmd}" if config.NIX_PATH
+
 			machine.communicate.tap do |comm|
-				comm.sudo(rebuild_cmd)
+				comm.execute(rebuild_cmd, sudo: true) do |type, data|
+					if [:stderr, :stdout].include?(type)
+					# Output the data with the proper color based on the stream.
+					color = type == :stdout ? :green : :red
+
+					options = {
+					  new_line: false,
+					  prefix: false,
+					}
+					options[:color] = color
+
+					machine.env.ui.info(data, options) if config.verbose
+					end
+				end
 			end
 		end
 

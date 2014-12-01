@@ -2,3 +2,4 @@ Vagrantfile
 .vagrant/
 Gemfile.lock
 pkg/
+vendor/

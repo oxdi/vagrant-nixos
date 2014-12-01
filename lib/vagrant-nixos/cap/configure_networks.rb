@@ -1,5 +1,6 @@
 require 'set'
 require 'tempfile'
+require 'netaddr'
 
 require "vagrant/util/template_renderer"
 
@@ -10,11 +11,13 @@ module VagrantPlugins
 				include Vagrant::Util
 
 				def self.nix_interface_expr(options)
+                    addr = NetAddr::CIDR.create("#{options[:ip]} #{options[:netmask]}")
+                    prefix_length = addr.netmask[1, addr.netmask.size]
 					<<-NIX
 						{ 
 							name = "eth#{options[:interface]}";
 							ipAddress = "#{options[:ip]}";
-							subnetMask = "#{options[:netmask]}";
+							prefixLength = #{prefix_length};
 						}
 					NIX
 				end

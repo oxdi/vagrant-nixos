@@ -19,7 +19,7 @@ module VagrantPlugins
 
 				def self.change_host_name(machine, name)
 					if Nixos.write_config(machine, "vagrant-hostname.nix", nix_module(name))
-						machine.env[:ui].info "Change host name to #{name}"
+						machine.env.ui.info "Change host name to #{name}"
 					end
 				end
 
